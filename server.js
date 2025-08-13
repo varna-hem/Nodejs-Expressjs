@@ -3,18 +3,19 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const errorHandler = require("./middleware/errorHandler");
-const logger = require("./middleware/logger"); // Added logger
+const logger = require("./middleware/logger");
 
 // Import route modules
 const userRoutes = require("./routes/user");
 const productRoutes = require("./routes/products");
+const authRoutes = require("./routes/auth"); // ✅ NEW
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(logger); // Log all incoming requests
+app.use(logger);
 
 // MongoDB connection
 mongoose
@@ -31,13 +32,14 @@ mongoose
 // API routes
 app.use("/api/user", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/auth", authRoutes); // ✅ NEW
 
 // Root route - health check
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Error handler - must be last
+// Error handler
 app.use(errorHandler);
 
 // Start server

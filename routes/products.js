@@ -1,12 +1,14 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
 const Product = require("../models/products");
+const auth = require("../middleware/authmiddleware"); // ✅ added
 
 const router = express.Router();
 
-// Create new product
+// Create new product (Protected)
 router.post(
   "/",
+  auth,
   [
     body("name").notEmpty().withMessage("Name is required"),
     body("price").isNumeric().withMessage("Price must be a number"),
@@ -28,7 +30,7 @@ router.post(
   }
 );
 
-// Get all products
+// Get all products (Public)
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -39,7 +41,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get product by id
+// Get product by id (Public)
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -54,9 +56,10 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update product by id
+// Update product by id (Protected)
 router.put(
   "/:id",
+  auth,
   [
     body("name").optional().notEmpty().withMessage("Name cannot be empty"),
     body("price").optional().isNumeric().withMessage("Price must be a number"),
@@ -92,8 +95,8 @@ router.put(
   }
 );
 
-// DELETE /api/products/:id
-router.delete("/:id", async (req, res) => {
+// Delete product (Protected)
+router.delete("/:id", auth, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
